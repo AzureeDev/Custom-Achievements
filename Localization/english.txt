@@ -1,0 +1,14 @@
+{
+	"achievement_unlocked_menu" : "Achievement unlocked : ",
+	"achievement_unlocked_desc" : "You have unlocked the achievement below:\n\n",
+	"achievement_unlocked_ok" : "Got it!",
+
+	"achievement_reload_1_name" : "Mod Reload I",
+	"achievement_reload_1_desc" : "Reload the mod for the first time. Actually this achievement is already unlocked since you reload the game when you launch it.",
+	"achievement_reload_2_name" : "Mod Reload II",
+	"achievement_reload_2_desc" : "Reload the mod 10 times.",
+	"achievement_reload_3_name" : "Mod Reload III",
+	"achievement_reload_3_desc" : "Reload the mod 50 times.",
+	"achievement_reload_4_name" : "Mod Reload IV",
+	"achievement_reload_4_desc" : "Reload the mod 100 times. Congratz, you finished!",
+}

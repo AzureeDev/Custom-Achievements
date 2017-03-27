@@ -1,0 +1,17 @@
+{
+	"name" : "Custom Achievements API",
+	"description" : "Base mod needed to get custom achievements to work.",
+	"author" : "Nepgearsy",
+	"contact" : "id/Nepgearsy",
+	"version" : "1.0",
+    "priority" : 1000,
+    "pre_hooks" : [
+		{ "hook_id" : "lib/entry", "script_path" : "Core.lua" }
+    ],
+    "libraries" : [
+        {
+            "display_name" : "BeardLib",
+            "identifier" : "beardlib"
+        }
+    ]
+}
