@@ -1,6 +1,6 @@
 <mod name="CustomAchievements" global_key="CustomAchievement">
 	<Hooks directory="Hooks">
-        <hook file="menumanager.lua" source_file="lib/managers/menumanager"/>
+        <hook file="entry.lua" source_file="lib/entry"/>
     </Hooks>
 
     <Localization directory="Localization" default="english.txt">

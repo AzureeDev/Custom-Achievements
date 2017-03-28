@@ -5,6 +5,12 @@
 	"contact" : "id/Nepgearsy",
 	"version" : "1.0",
     "priority" : 1000,
+    "updates" : [
+        {
+            "revision" : 1,
+            "identifier" : "CSTMACH"
+        }
+    ],
     "pre_hooks" : [
 		{ "hook_id" : "lib/entry", "script_path" : "Core.lua" }
     ],
