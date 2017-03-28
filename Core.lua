@@ -19,31 +19,3 @@ if not _G.CustomAchievement then
 		log("[ERROR] An error occured on the initialization of Custom Achievements API. " .. tostring(err))
 	end
 end
-
---[[ Define our own achievements
-CustomAchievement:_set_json_directory("Custom Achievements API", "Achievements")
-CustomAchievement:IncreaseCounter("achievement_reload_2", 1)
-CustomAchievement:IncreaseCounter("achievement_reload_3", 1)
-CustomAchievement:IncreaseCounter("achievement_reload_4", 1)
-
-CustomAchievement:Load("achievement_reload_1")
-CustomAchievement:Unlock("achievement_reload_1")
-
-
-CustomAchievement:Load("achievement_reload_2")
-
-if self.id_data.data["number"] >= 10 then
-	CustomAchievement:Unlock("achievement_reload_2")
-end
-
-CustomAchievement:Load("achievement_reload_3")
-
-if self.id_data.data["number"] >= 50 then
-	CustomAchievement:Unlock("achievement_reload_3")
-end
-
-CustomAchievement:Load("achievement_reload_4")
-
-if self.id_data.data["number"] >= 100 then
-	CustomAchievement:Unlock("achievement_reload_4")
-end]]--

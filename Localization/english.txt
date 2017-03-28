@@ -2,6 +2,12 @@
 	"achievement_unlocked_menu" : "Achievement unlocked : ",
 	"achievement_unlocked_desc" : "You have unlocked the achievement below:\n\n",
 	"achievement_unlocked_ok" : "Got it!",
+	"achievement_global_chat" : "Achievement",
+	"achievement_unlocked_chat" : "Achievement unlocked!",
+
+	"achievement_menu_page_tab" : "Custom Achievements",
+	"achievement_menu_page_unlocked" : "Unlocked",
+	"achievement_menu_page_locked" : "Locked",
 
 	"achievement_reload_1_name" : "Mod Reload I",
 	"achievement_reload_1_desc" : "Reload the mod for the first time. Actually this achievement is already unlocked since you reload the game when you launch it.",

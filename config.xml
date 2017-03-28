@@ -2,6 +2,11 @@
 	<Classes directory="Classes">
         <class file="MainFunctions.lua"/>
 	</Classes>
+	<Hooks directory="Hooks">
+        <hook file="chatmanager.lua" source_file="lib/managers/chatmanager"/>
+        <hook file="menumanager.lua" source_file="lib/managers/menumanager"/>
+        <hook file="customsafehousegui.lua" source_file="lib/managers/menu/customsafehousegui"/>
+    </Hooks>
     <Localization directory="Localization" default="english.txt">
     </Localization>
 </mod>
