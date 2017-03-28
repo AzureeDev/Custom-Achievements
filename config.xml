@@ -1,8 +1,7 @@
 <mod name="CustomAchievements" global_key="CustomAchievement">
-	<Hooks directory="Hooks">
-        <hook file="entry.lua" source_file="lib/entry"/>
-    </Hooks>
-
+	<Classes directory="Classes">
+        <class file="MainFunctions.lua"/>
+	</Classes>
     <Localization directory="Localization" default="english.txt">
     </Localization>
 </mod>
