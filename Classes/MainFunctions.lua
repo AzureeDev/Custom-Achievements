@@ -114,6 +114,74 @@ function ClassCustomAchievement:DecreaseCounter(id_achievement, amount, prevent_
 	ClassCustomAchievement:Save(id_achievement)
 end
 
+function ClassCustomAchievement:isHeistCompleted(id_achievement, id_level, id_diff)
+	if game_state_machine then
+		local required_level = id_level
+		local required_difficulty = id_diff
+		local current_level = managers.job:current_level_id()
+		local current_diff = Global.game_settings.difficulty
+
+		if required_level == current_level then
+			if required_difficulty == current_diff then
+				self:Load(id_achievement)
+				self:Unlock(id_achievement)
+				self:Save(id_achievement)
+			end
+		end
+	end
+end
+
+function ClassCustomAchievement:isHeistCountCompleted(id_achievement, id_level, id_diff)
+	if game_state_machine then
+		local required_level = id_level
+		local required_difficulty = id_diff
+		local current_level = managers.job:current_level_id()
+		local current_diff = Global.game_settings.difficulty
+
+		if required_level == current_level then
+			if required_difficulty == current_diff then
+				self:Load(id_achievement)
+				self:IncreaseCounter(id_achievement, 1)
+				self:Save(id_achievement)
+
+				if self.id_data.data["number"] >= self.id_data.data["goal"] then
+					self:Unlock(id_achievement)
+				end
+			end
+		end
+	end
+end
+
+function ClassCustomAchievement:isDifficultyCompleted(id_achievement, id_diff)
+	if game_state_machine then
+		local required_difficulty = id_diff
+		local current_diff = Global.game_settings.difficulty
+
+		if required_difficulty == current_diff then
+			self:Load(id_achievement)
+			self:Unlock(id_achievement)
+			self:Save(id_achievement)
+		end
+	end
+end
+
+function ClassCustomAchievement:isDifficultyCountCompleted(id_achievement, id_diff)
+	if game_state_machine then
+		local required_difficulty = id_diff
+		local current_diff = Global.game_settings.difficulty
+
+		if required_difficulty == current_diff then
+			self:Load(id_achievement)
+			self:IncreaseCounter(id_achievement, 1)
+			self:Save(id_achievement)
+
+			if self.id_data.data["number"] >= self.id_data.data["goal"] then
+				self:Unlock(id_achievement)
+			end
+		end
+	end
+end
+
 function ClassCustomAchievement:RetrieveData(id_achievement, key)
 	self:Load(id_achievement)
 	log("[CustomAchievement] Data retrieved for " .. id_achievement .. ": " .. tostring(self.id_data.data[key]))
