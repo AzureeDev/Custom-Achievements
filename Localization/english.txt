@@ -8,14 +8,22 @@
 	"achievement_menu_page_tab" : "Custom Achievements",
 	"achievement_menu_page_unlocked" : "Unlocked",
 	"achievement_menu_page_locked" : "Locked",
-	"achievement_menu_page_counter" : "$completed of $total achievements completed",
+	"achievement_menu_page_counter" : "$completed of $total achievements completed - $percent%",
+	"achievement_menu_page_obj" : "",
 
-	"achievement_reload_1_name" : "Mod Reload I",
-	"achievement_reload_1_desc" : "Reload the mod for the first time. Actually this achievement is already unlocked since you reload the game when you launch it.",
-	"achievement_reload_2_name" : "Mod Reload II",
-	"achievement_reload_2_desc" : "Reload the mod 10 times.",
-	"achievement_reload_3_name" : "Mod Reload III",
-	"achievement_reload_3_desc" : "Reload the mod 50 times.",
-	"achievement_reload_4_name" : "Mod Reload IV",
-	"achievement_reload_4_desc" : "Reload the mod 100 times. Congratz, you finished!",
+	"custom_ach_reloaded_1_name" : "Custom Achievement Mod Reload I",
+	"custom_ach_reloaded_1_desc" : "That should be your first achievement, lol",
+	"custom_ach_reloaded_1_obj" : "Just launch the game",
+
+	"custom_ach_reloaded_2_name" : "Custom Achievement Mod Reload II",
+	"custom_ach_reloaded_2_desc" : "",
+	"custom_ach_reloaded_2_obj" : "Reload the mod 100 times.",
+
+	"custom_ach_reloaded_3_name" : "Custom Achievement Mod Reload III",
+	"custom_ach_reloaded_3_desc" : "",
+	"custom_ach_reloaded_3_obj" : "Reload the mod 500 times.",
+
+	"custom_ach_reloaded_4_name" : "Custom Achievement Mod Reload IV",
+	"custom_ach_reloaded_4_desc" : "o_o",
+	"custom_ach_reloaded_4_obj" : "Reload the mod 10,000 times.",
 }

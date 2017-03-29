@@ -26,7 +26,7 @@ function CustomAchievementsPage:init_achievements()
 			objectives = {},
 			progress = CustomAchievement.id_data.data["number"],
 			goal = CustomAchievement.id_data.data["goal"],
-			show_progress = false,
+			show_progress = true,
 			image_id = CustomAchievement.id_data.data["texture"]
 		})
 	end
@@ -64,8 +64,8 @@ function CustomAchievementsPage:set_achievement_info(trophy, update_size)
 	
 	if data.completed then
 		complete_text:set_text(managers.localization:to_upper_text("achievement_menu_page_unlocked"))
-		complete_text:set_color(tweak_data.screen_colors.challenge_completed_color)
-		complete_fill:set_color(tweak_data.screen_colors.challenge_completed_color)
+		complete_text:set_color(Color(255, 128, 255, 0) / 255)
+		complete_fill:set_color(Color(255, 128, 255, 0) / 255)
 	else
 		complete_text:set_text(managers.localization:to_upper_text("achievement_menu_page_locked"))
 		complete_text:set_color(tweak_data.screen_colors.important_1)
@@ -79,31 +79,28 @@ function CustomAchievementsPage:set_achievement_info(trophy, update_size)
 	objective_text:set_text(managers.localization:text(data.objective_id))
 	local _, _, _, h = objective_text:text_rect()
 	objective_text:set_h(h)
-	--[[if self._progress_items then
-		for _, item in ipairs(self._progress_items) do
-			item:destroy()
+	
+	if data.goal > 0 then
+		if not data.completed then
+			progress_header:set_visible(true)
+			local text = tostring(data.progress .. " / " .. data.goal)
+			progress_header:set_text(text)
+			progress_header:set_top(objective_text:bottom() + PANEL_PADDING)
+		else
+			progress_header:set_visible(true)
+			local text = tostring(data.goal .. " / " .. data.goal)
+			progress_header:set_text(text)
+			progress_header:set_top(objective_text:bottom() + PANEL_PADDING)
 		end
-		self._progress_items = {}
-	end
-	if self.data.show_progress then
-		progress_header:set_visible(true)
-		progress_header:set_top(objective_text:bottom() + PANEL_PADDING)
-		self._progress_items = {}
-		for idx, objective in ipairs(data.objectives) do
-			if self.data.completed then
-				objective.completed = true
-				objective.progress = objective.max_progress
-			end
-			local item = CustomSafehouseGuiProgressItem:new(info_panel, objective)
-			table.insert(self._progress_items, item)
-			local pos = progress_header:bottom() + CustomSafehouseGuiProgressItem.h * (idx - 1)
-			item:set_top(pos)
-		end
-	else--]]
+	else
 		progress_header:set_visible(false)
-	if update_size then
-		self._info_scroll:update_canvas_size()
 	end
+
+	--self._progress_items = {}
+	--local item = self:progress_init(info_panel, data.progress, data.goal)
+	--table.insert(self._progress_items, item)
+	--local pos = progress_header:bottom() + CustomSafehouseGuiProgressItem.h * (idx - 1)
+	--item:set_top(pos)
 end
 
 function CustomAchievementsPage:_setup_achievements_list()
@@ -383,7 +380,8 @@ function CustomAchievementsPage:_setup_trophies_info()
 		color = tweak_data.screen_colors.challenge_title,
 		text = utf8.to_upper(managers.localization:text("menu_unlock_progress")),
 		w = scroll:canvas():w(),
-		h = small_font_size,
+		wrap = true,
+		word_wrap = true,
 		align = "left",
 		vertical = "top",
 		halign = "left",
@@ -402,7 +400,8 @@ function CustomAchievementsPage:_setup_trophies_counter()
 			completed = completed + 1
 		end
 	end
-	local text = managers.localization:to_upper_text("achievement_menu_page_counter", {total = total, completed = completed})
+	local percent = math.floor(completed * 100 / total)
+	local text = managers.localization:to_upper_text("achievement_menu_page_counter", {total = total, completed = completed, percent = percent})
 	self._trophy_counter = self._gui._panel:text({
 		text = text,
 		font = medium_font,
@@ -766,6 +765,122 @@ function CustomAchievementsPage:get_legend()
 	table.insert(legend, "back")
 	return legend
 end
+
+function CustomAchievementsPage:progress_init(parent_panel, progression, progression_max)
+	self.h = small_font_size * 1.3
+	self._parent = parent_panel
+	self._progression = progression
+	self._progression_max = progression_max
+	self._panel = parent_panel:panel({
+		w = parent_panel:w(),
+		h = self.h
+	})
+	self._text = self._panel:text({
+		name = "text",
+		font_size = small_font_size,
+		font = small_font,
+		layer = 1,
+		blend_mode = "add",
+		color = tweak_data.screen_colors.text,
+		text = managers.localization:text("achievement_menu_page_obj"),
+		w = self._panel:w(),
+		h = self._panel:h(),
+		align = "left",
+		vertical = "center",
+		halign = "scale",
+		valign = "scale"
+	})
+	if 1 < self._progression_max then
+		self._progress_panel = self._panel:panel({
+			w = self._panel:w(),
+			h = self._panel:h()
+		})
+		self._progress_outline = BoxGuiObject:new(self._progress_panel, {
+			sides = {
+				1,
+				1,
+				1,
+				1
+			}
+		})
+		local color = self._progression >= self.progression_max and tweak_data.screen_colors.challenge_completed_color or tweak_data.screen_colors.button_stage_3
+		self._progress_fill = self._progress_panel:rect({
+			w = self._panel:w() * (self._progression / self._progression_max),
+			color = color:with_alpha(0.4)
+		})
+		self._text:set_x(PANEL_PADDING)
+		self._progress_text = self._panel:text({
+			name = "progress_text",
+			font_size = small_font_size,
+			font = small_font,
+			layer = 1,
+			blend_mode = "add",
+			color = tweak_data.screen_colors.text,
+			text = tostring(self._progression) .. "/" .. tostring(self._progression_max),
+			w = self._panel:w() - PANEL_PADDING * 2,
+			h = self._progress_panel:h(),
+			x = PANEL_PADDING,
+			align = "right",
+			vertical = "center",
+			halign = "scale",
+			valign = "scale"
+		})
+	else
+		local texture, texture_rect = "guis/textures/menu_tickbox", {
+			self._progression >= self.progression_max and 24 or 0,
+			0,
+			24,
+			24
+		}
+		self._checkbox = self._panel:bitmap({
+			name = "checkbox",
+			texture = texture,
+			texture_rect = texture_rect,
+			layer = 1,
+			visible = true,
+			valign = "scale",
+			halign = "scale"
+		})
+		self._checkbox:set_right(self._panel:w())
+		self._checkbox:set_top(self._panel:h() * 0.5 - self._checkbox:h() * 0.5)
+	end
+end
+function CustomAchievementsPage:destroy()
+	self._parent:remove(self._panel)
+end
+function CustomAchievementsPage:top()
+	return self._panel:top()
+end
+function CustomAchievementsPage:bottom()
+	return self._panel:bottom()
+end
+function CustomAchievementsPage:set_top(y)
+	return self._panel:set_top(y)
+end
+function CustomAchievementsPage:set_bottom(y)
+	return self._panel:set_bottom(y)
+end
+function CustomAchievementsPage:set_w(w)
+	self._panel:set_w(w)
+	if alive(self._progress_panel) then
+		self._progress_panel:set_w(w)
+		self._progress_fill:set_w(w * (self._progression / self._progression_max))
+		self._progress_text:set_w(self._panel:w() - PANEL_PADDING * 2)
+		self._progress_outline:close()
+		self._progress_outline = BoxGuiObject:new(self._progress_panel, {
+			sides = {
+				1,
+				1,
+				1,
+				1
+			}
+		})
+	end
+	if alive(self._checkbox) then
+		self._checkbox:set_right(self._panel:w())
+	end
+end
+
 CustomSafehouseGuiTrophyItem = CustomSafehouseGuiTrophyItem or class(CustomSafehouseGuiItem)
 function CustomSafehouseGuiTrophyItem:init(panel, data, x, priority)
 	CustomSafehouseGuiTrophyItem.super.init(self, panel, data)
@@ -839,7 +954,7 @@ function CustomSafehouseGuiTrophyItem:show()
 	self._complete_checkbox_highlight:set_visible(true)
 	self._btn_text:set_alpha(1)
 	if self:trophy_data().completed and not self:trophy_data().displayed then
-		self._btn_text:set_color(tweak_data.screen_colors.important_1)
+		self._btn_text:set_color(Color(255, 128, 255, 0) / 255)
 	else
 		self._btn_text:set_color(tweak_data.screen_colors.button_stage_2)
 	end
@@ -849,7 +964,7 @@ function CustomSafehouseGuiTrophyItem:hide()
 	self._complete_checkbox_highlight:set_visible(false)
 	self._btn_text:set_alpha(1)
 	if self:trophy_data().completed and not self:trophy_data().displayed then
-		self._btn_text:set_color(tweak_data.screen_colors.important_1)
+		self._btn_text:set_color(Color(255, 128, 255, 0) / 255)
 		self._btn_text:set_alpha(0.8)
 	else
 		self._btn_text:set_color(tweak_data.screen_colors.button_stage_3)
@@ -909,119 +1024,5 @@ function CustomSafehouseGuiTrophyItem:trigger(parent)
 		if parent then
 			parent:refresh()
 		end
-	end
-end
-CustomSafehouseGuiProgressItem = CustomSafehouseGuiProgressItem or class(CustomSafehouseGuiItem)
-CustomSafehouseGuiProgressItem.h = small_font_size * 1.3
-function CustomSafehouseGuiProgressItem:init(parent_panel, trophy_objective)
-	self._parent = parent_panel
-	self._objective = trophy_objective
-	self._panel = parent_panel:panel({
-		w = parent_panel:w(),
-		h = self.h
-	})
-	self._text = self._panel:text({
-		name = "text",
-		font_size = small_font_size,
-		font = small_font,
-		layer = 1,
-		blend_mode = "add",
-		color = tweak_data.screen_colors.text,
-		text = managers.localization:text(tostring(trophy_objective.name_id)),
-		w = self._panel:w(),
-		h = self._panel:h(),
-		align = "left",
-		vertical = "center",
-		halign = "scale",
-		valign = "scale"
-	})
-	if 1 < trophy_objective.max_progress then
-		self._progress_panel = self._panel:panel({
-			w = self._panel:w(),
-			h = self._panel:h()
-		})
-		self._progress_outline = BoxGuiObject:new(self._progress_panel, {
-			sides = {
-				1,
-				1,
-				1,
-				1
-			}
-		})
-		local color = trophy_objective.completed and tweak_data.screen_colors.challenge_completed_color or tweak_data.screen_colors.button_stage_3
-		self._progress_fill = self._progress_panel:rect({
-			w = self._panel:w() * (trophy_objective.progress / trophy_objective.max_progress),
-			color = color:with_alpha(0.4)
-		})
-		self._text:set_x(PANEL_PADDING)
-		self._progress_text = self._panel:text({
-			name = "progress_text",
-			font_size = small_font_size,
-			font = small_font,
-			layer = 1,
-			blend_mode = "add",
-			color = tweak_data.screen_colors.text,
-			text = tostring(trophy_objective.progress) .. "/" .. tostring(trophy_objective.max_progress),
-			w = self._panel:w() - PANEL_PADDING * 2,
-			h = self._progress_panel:h(),
-			x = PANEL_PADDING,
-			align = "right",
-			vertical = "center",
-			halign = "scale",
-			valign = "scale"
-		})
-	else
-		local texture, texture_rect = "guis/textures/menu_tickbox", {
-			trophy_objective.completed and 24 or 0,
-			0,
-			24,
-			24
-		}
-		self._checkbox = self._panel:bitmap({
-			name = "checkbox",
-			texture = texture,
-			texture_rect = texture_rect,
-			layer = 1,
-			visible = true,
-			valign = "scale",
-			halign = "scale"
-		})
-		self._checkbox:set_right(self._panel:w())
-		self._checkbox:set_top(self._panel:h() * 0.5 - self._checkbox:h() * 0.5)
-	end
-end
-function CustomSafehouseGuiProgressItem:destroy()
-	self._parent:remove(self._panel)
-end
-function CustomSafehouseGuiProgressItem:top()
-	return self._panel:top()
-end
-function CustomSafehouseGuiProgressItem:bottom()
-	return self._panel:bottom()
-end
-function CustomSafehouseGuiProgressItem:set_top(y)
-	return self._panel:set_top(y)
-end
-function CustomSafehouseGuiProgressItem:set_bottom(y)
-	return self._panel:set_bottom(y)
-end
-function CustomSafehouseGuiProgressItem:set_w(w)
-	self._panel:set_w(w)
-	if alive(self._progress_panel) then
-		self._progress_panel:set_w(w)
-		self._progress_fill:set_w(w * (self._objective.progress / self._objective.max_progress))
-		self._progress_text:set_w(self._panel:w() - PANEL_PADDING * 2)
-		self._progress_outline:close()
-		self._progress_outline = BoxGuiObject:new(self._progress_panel, {
-			sides = {
-				1,
-				1,
-				1,
-				1
-			}
-		})
-	end
-	if alive(self._checkbox) then
-		self._checkbox:set_right(self._panel:w())
 	end
 end

@@ -17,7 +17,8 @@
     "libraries" : [
         {
             "display_name" : "BeardLib",
-            "identifier" : "beardlib"
+            "identifier" : "beardlib",
+            "optional" : "false"
         }
     ]
 }

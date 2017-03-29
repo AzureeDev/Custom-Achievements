@@ -50,17 +50,12 @@ function ClassCustomAchievement:Unlock(id_achievement) -- Once it's done, you un
 		self.id_data.data["unlocked"] = true
 	end
 
-	local function isPlaying() 	
-		return BaseNetworkHandler._gamestate_filter.any_ingame_playing[game_state_machine.last_queued_state_name(game_state_machine)] 
-	end
-
-
-	if self.id_data.data["displayed"] == false then	
-		if isPlaying() then
+	if game_state_machine then
+		if self.id_data.data["displayed"] == false then	
 			local achievement_name = self.id_data.data["name"]
-			local achievement_desc = self.id_data.data["desc"]
+			local achievement_desc = self.id_data.data["objective"]
 
-			managers.mission:call_global_event(Message.OnSideJobComplete)
+			--managers.mission:call_global_event(Message.OnSideJobComplete)
 			managers.chat:achievement_unlocked_message(ChatManager.GAME, managers.localization:text("achievement_unlocked_chat"))
 			managers.chat:achievement_unlocked_message(ChatManager.GAME, managers.localization:text(achievement_name))
 			managers.chat:achievement_unlocked_message(ChatManager.GAME, managers.localization:text(achievement_desc))
