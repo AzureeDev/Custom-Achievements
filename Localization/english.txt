@@ -8,6 +8,7 @@
 	"achievement_menu_page_tab" : "Custom Achievements",
 	"achievement_menu_page_unlocked" : "Unlocked",
 	"achievement_menu_page_locked" : "Locked",
+	"achievement_menu_page_counter" : "$completed of $total achievements completed",
 
 	"achievement_reload_1_name" : "Mod Reload I",
 	"achievement_reload_1_desc" : "Reload the mod for the first time. Actually this achievement is already unlocked since you reload the game when you launch it.",

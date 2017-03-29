@@ -10,29 +10,39 @@ local PANEL_PADDING = 10
 local REWARD_SIZE = 100
 local MAX_REWARDS_DISPLAYED = 2
 CustomAchievementsPage = CustomAchievementsPage or class(CustomSafehouseGuiPage)
+function CustomAchievementsPage:init_achievements()
+	self.achievement_data = {}
+
+	for _, filename in pairs(file.GetFiles("mods/Custom Achievements Addons/")) do
+		local file = filename:gsub(".json", "")
+		
+		CustomAchievement:Load(file)
+		table.insert(self.achievement_data, {
+			id = CustomAchievement.id_data.data["id"],
+			name_id = CustomAchievement.id_data.data["name"],
+			desc_id = CustomAchievement.id_data.data["desc"],
+			objective_id = CustomAchievement.id_data.data["objective"],
+			completed = CustomAchievement.id_data.data["unlocked"],
+			objectives = {},
+			progress = CustomAchievement.id_data.data["number"],
+			goal = CustomAchievement.id_data.data["goal"],
+			show_progress = false,
+			image_id = CustomAchievement.id_data.data["texture"]
+		})
+	end
+end
+
 function CustomAchievementsPage:init(page_id, page_panel, fullscreen_panel, gui)
 	CustomAchievementsPage.super.init(self, page_id, page_panel, fullscreen_panel, gui)
 	self.make_fine_text = BlackMarketGui.make_fine_text
 	self._scrollable_panels = {}
+	self:init_achievements()
 	self:_setup_trophies_counter()
 	self:_setup_trophies_info()
 	self:_setup_achievements_list()
 end
 
-function CustomAchievementsPage:set_achievement_info()
-
-	CustomAchievement:Load("assault_states_survived_wave_1")
-	
-	self.data = {
-		name_id = CustomAchievement.id_data.data["name"],
-		desc_id = CustomAchievement.id_data.data["desc"],
-		image_id = CustomAchievement.id_data.data["texture"],
-		completed = CustomAchievement.id_data.data["unlocked"],
-		displayed = true,
-		show_progress = false,
-		objective_id = CustomAchievement.id_data.data["objective"]
-	}
-
+function CustomAchievementsPage:set_achievement_info(trophy, update_size)
 	local info_panel = self._info_scroll:canvas()
 	local title_text = info_panel:child("TitleText")
 	local image_panel = info_panel:child("TrophyImagePanel")
@@ -44,14 +54,15 @@ function CustomAchievementsPage:set_achievement_info()
 	local objective_header = info_panel:child("ObjectiveHeader")
 	local objective_text = info_panel:child("ObjectiveText")
 	local progress_header = info_panel:child("ProgressHeader")
+	local data = trophy:trophy_data()
 
-	title_text:set_text(utf8.to_upper(managers.localization:text(self.data.name_id)))
-	desc_text:set_text(managers.localization:text(self.data.desc_id))
-	trophy_image:set_image("guis/textures/mods/CustomAchievement/" .. self.data.image_id)
+	title_text:set_text(utf8.to_upper(managers.localization:text(data.name_id)))
+	desc_text:set_text(managers.localization:text(data.desc_id))
+	trophy_image:set_image("guis/textures/mods/CustomAchievement/" .. data.image_id)
 	complete_banner:set_visible(true)
 	desc_text:set_top(complete_banner:bottom() + PANEL_PADDING)
 	
-	if self.data.completed then
+	if data.completed then
 		complete_text:set_text(managers.localization:to_upper_text("achievement_menu_page_unlocked"))
 		complete_text:set_color(tweak_data.screen_colors.challenge_completed_color)
 		complete_fill:set_color(tweak_data.screen_colors.challenge_completed_color)
@@ -65,7 +76,7 @@ function CustomAchievementsPage:set_achievement_info()
 	desc_text:set_h(h)
 	objective_header:set_top(desc_text:bottom() + PANEL_PADDING)
 	objective_text:set_top(objective_header:bottom())
-	objective_text:set_text(managers.localization:text(self.data.objective_id))
+	objective_text:set_text(managers.localization:text(data.objective_id))
 	local _, _, _, h = objective_text:text_rect()
 	objective_text:set_h(h)
 	--[[if self._progress_items then
@@ -96,19 +107,6 @@ function CustomAchievementsPage:set_achievement_info()
 end
 
 function CustomAchievementsPage:_setup_achievements_list()
-
-	CustomAchievement:Load("assault_states_survived_wave_1")
-	
-	data = {
-		name_id = CustomAchievement.id_data.data["name"],
-		desc_id = CustomAchievement.id_data.data["desc"],
-		image_id = CustomAchievement.id_data.data["texture"],
-		completed = CustomAchievement.id_data.data["unlocked"],
-		objectives = CustomAchievement.id_data.data["objective"],
-		displayed = false,
-		show_progress = false,
-	}
-
 	self._trophies = {}
 	local scroll = ScrollablePanel:new(self:panel(), "TrophiesPanel", {padding = 0})
 	BoxGuiObject:new(scroll:panel(), {
@@ -120,30 +118,33 @@ function CustomAchievementsPage:_setup_achievements_list()
 		}
 	})
 	self._trophies_scroll = scroll
-
-	local achivements = {}
-
 	table.insert(self._scrollable_panels, scroll)
-	table.insert(achivements, data)
-	table.sort(achivements, function(a, b)
+	local trophies = {}
+	for idx, trophy in ipairs(self.achievement_data) do
+		if not trophy.secret then
+			table.insert(trophies, trophy)
+		end
+	end
+	table.sort(trophies, function(a, b)
 		return managers.localization:text(a.name_id) < managers.localization:text(b.name_id)
 	end)
-
-	for idx, trophy in ipairs(achivements) do
+	for idx, trophy in ipairs(trophies) do
 		local trophy_btn = CustomSafehouseGuiTrophyItem:new(scroll:canvas(), trophy, 0, idx)
 		table.insert(self._trophies, trophy_btn)
 	end
-
-	--local canvas_h = 0
-	--for idx, trophy in ipairs(self._trophies or {}) do
-	--	trophy:set_position(idx)
-	--	trophy:link(self._trophies[idx - 1], self._trophies[idx + 1])
-	--	canvas_h = math.max(canvas_h, trophy:bottom())
-	--end
-	--scroll:set_canvas_size(nil, canvas_h)
-	--if #self._trophies > 0 then
-	--	self:_set_selected(self._trophies[1], true)
-	--end
+	table.sort(self._trophies, function(a, b)
+		return a:priority() < b:priority()
+	end)
+	local canvas_h = 0
+	for idx, trophy in ipairs(self._trophies or {}) do
+		trophy:set_position(idx)
+		trophy:link(self._trophies[idx - 1], self._trophies[idx + 1])
+		canvas_h = math.max(canvas_h, trophy:bottom())
+	end
+	scroll:set_canvas_size(nil, canvas_h)
+	if #self._trophies > 0 then
+		self:_set_selected(self._trophies[1], true)
+	end
 end
 
 function CustomAchievementsPage:_setup_trophies_list()
@@ -395,13 +396,13 @@ end
 function CustomAchievementsPage:_setup_trophies_counter()
 	local total = 0
 	local completed = 0
-	for _, trophy in ipairs(managers.custom_safehouse:trophies()) do
+	for _, trophy in ipairs(self.achievement_data) do
 		total = total + 1
 		if trophy.completed then
 			completed = completed + 1
 		end
 	end
-	local text = managers.localization:to_upper_text("menu_cs_trophy_counter", {total = total, completed = completed})
+	local text = managers.localization:to_upper_text("achievement_menu_page_counter", {total = total, completed = completed})
 	self._trophy_counter = self._gui._panel:text({
 		text = text,
 		font = medium_font,
@@ -442,7 +443,7 @@ function CustomAchievementsPage:update_info_panel_width(new_width)
 		end
 	end
 	if self._selected_trophy then
-		self:set_achievement_info()
+		self:set_achievement_info(self._selected_trophy, false)
 	end
 end
 function CustomAchievementsPage:set_trophy_info(trophy, update_size)
@@ -542,7 +543,7 @@ function CustomAchievementsPage:_set_selected(trophy, skip_sound)
 	end
 	self._selected_trophy = trophy
 	self._selected_trophy:set_selected(true, not skip_sound)
-	self:set_achievement_info()
+	self:set_achievement_info(self._selected_trophy, true)
 	local scroll_panel = self._trophies_scroll:scroll_panel()
 	local y = self._trophies_scroll:canvas():y() + trophy:bottom()
 	if y > scroll_panel:h() then

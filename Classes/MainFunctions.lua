@@ -4,7 +4,7 @@ ClassCustomAchievement.Directory = nil
 ClassCustomAchievement.id_data = {}
 ClassCustomAchievement.VERSION = 1 -- If the version changes, you need to update your mod in order.
 ClassCustomAchievement.Directory = "mods/Custom Achievements Addons/"
-ClassCustomAchievement.MasterArray = {}
+ClassCustomAchievement.addons_path = "mods/Custom Achievements Addons/"
 
 function ClassCustomAchievement:Load(id_achievement)
 
@@ -17,7 +17,6 @@ function ClassCustomAchievement:Load(id_achievement)
 			for k, v in pairs(json.decode(file:read("*all")) or {}) do
 				if k then
 					self.id_data.data[k] = v
-					table.insert(self.MasterArray, self.id_data.data)
 				end
 			end
 			file:close()
@@ -29,6 +28,7 @@ function ClassCustomAchievement:Load(id_achievement)
 		log("[CustomAchievement] ERROR: JSON path directory not set! Use ClassCustomAchievement:_set_json_directory(mod_name) first!!")
 	end
 end
+
 
 function ClassCustomAchievement:Save(id_achievement)
 	if ClassCustomAchievement.Directory ~= nil then

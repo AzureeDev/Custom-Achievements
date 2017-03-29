@@ -1,0 +1,11 @@
+{
+   "id":"achievement_uniq_id",
+   "name":"achievement_name",
+   "desc":"achievement_desc",
+   "objective":"achievement_objective",
+   "number":0,
+   "goal":10,
+   "displayed":false,
+   "unlocked":false,
+   "texture":"default"
+}
