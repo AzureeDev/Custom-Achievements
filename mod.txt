@@ -3,11 +3,11 @@
 	"description" : "Base mod needed to get custom achievements to work.",
 	"author" : "Nepgearsy",
 	"contact" : "id/Nepgearsy",
-	"version" : "1.03",
+	"version" : "1.04",
     "priority" : 1000,
     "updates" : [
         {
-            "revision" : 3,
+            "revision" : 4,
             "identifier" : "CSTMACH"
         }
     ],

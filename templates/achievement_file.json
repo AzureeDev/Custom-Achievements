@@ -3,6 +3,8 @@
    "name":"achievement_name",
    "desc":"achievement_desc",
    "objective":"achievement_objective",
+   "reward_type":"none",
+   "reward_amount":0,
    "number":0,
    "goal":10,
    "displayed":false,

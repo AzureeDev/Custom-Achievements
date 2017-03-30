@@ -47,6 +47,7 @@ function ClassCustomAchievement:Unlock(id_achievement) -- Once it's done, you un
 	self:Load(id_achievement)
 
 	if self.id_data.data["unlocked"] ~= true then
+		self:Reward()
 		self.id_data.data["unlocked"] = true
 	end
 
@@ -75,12 +76,68 @@ function ClassCustomAchievement:Lock(id_achievement) -- Sometimes it's useful to
 	self:Save(id_achievement)
 end
 
+function ClassCustomAchievement:Reward()
+	-- Types supported: 
+	-- cc (continental coins)
+	-- money (spendable cash)
+
+	if self.id_data.data then
+		if self.id_data.data["reward_type"] and self.id_data.data["reward_amount"] then
+			if self.id_data.data["unlocked"] == false then
+				local json_reward_type = string.lower(self.id_data.data["reward_type"])
+				local json_reward_amount = self.id_data.data["reward_amount"]
+
+				if json_reward_amount < 0 then
+					json_reward_amount = 0
+				end
+
+				if json_reward_type == "cc" then
+
+					if json_reward_amount > 10 then
+						json_reward_amount = 10
+					end
+
+					local current = Application:digest_value(managers.custom_safehouse._global.total)
+					local future = current + json_reward_amount
+					Global.custom_safehouse_manager.total = Application:digest_value(future, true)
+
+				elseif json_reward_type == "money" then
+					if json_reward_amount > 1000000 then
+						json_reward_amount = 1000000
+					end
+
+					managers.money:_add_to_total(json_reward_amount, {no_offshore = true})
+
+				elseif json_reward_type == "offshore" then
+
+				elseif json_reward_type == "experience" then
+					if json_reward_amount > 500000 then
+						json_reward_amount = 500000
+					end
+
+					local current_level = managers.experience:current_level()
+					local lv_div = 101 - current_level
+					local real_xp = math.floor(json_reward_amount / lv_div)
+
+					managers.experience:debug_add_points(real_xp, false)
+				else
+					log("[CustomAchievement] ERROR : Invalid reward type. Skipping reward")					
+				end
+			end
+		else
+			log("[CustomAchievement] AVERT : Cannot give rewards for the achievement " .. self.id_data.data["id"] .. ". You need to update your JSON file with 'reward_type' and 'reward_amount'. Skipping reward")
+		end
+	else
+		log("[CustomAchievement] ERROR : No data loaded. Skipping reward")
+	end
+end
+
 function ClassCustomAchievement:IncreaseCounter(id_achievement, amount) -- Increases "number" key in the json by amount. Useful of custom weapon kill counters and stuff.
 	self:Load(id_achievement)
 
 	if self.id_data.data["unlocked"] ~= true then -- No need to write 5000 things if already unlocked
-		original_number = self.id_data.data["number"]
-		new_number = original_number + amount
+		local original_number = self.id_data.data["number"]
+		local new_number = original_number + amount
 		self.id_data.data["number"] = new_number
 
 		if self.id_data.data["number"] >= self.id_data.data["goal"] then
@@ -98,16 +155,16 @@ function ClassCustomAchievement:DecreaseCounter(id_achievement, amount, prevent_
 		if self.id_data.data["unlocked"] ~= true then -- No need to write 5000 things if already unlocked
 			local calc = (self.id_data.data["number"]) - amount
 			if calc > 0 then
-				original_number = self.id_data.data["number"]
-				new_number = original_number - amount
+				local original_number = self.id_data.data["number"]
+				local new_number = original_number - amount
 				self.id_data.data["number"] = new_number
 			else
 				self.id_data.data["number"] = 0
 			end
 		end
 	else
-		original_number = self.id_data.data["number"]
-		new_number = original_number - amount
+		local original_number = self.id_data.data["number"]
+		local new_number = original_number - amount
 		self.id_data.data["number"] = new_number
 	end
 

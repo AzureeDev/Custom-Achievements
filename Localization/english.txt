@@ -10,6 +10,12 @@
 	"achievement_menu_page_locked" : "Locked",
 	"achievement_menu_page_counter" : "$completed of $total achievements completed - $percent%",
 	"achievement_menu_page_obj" : "",
+	"achievement_menu_page_reward_header" : "REWARD:",
+	"achievement_menu_page_reward_text" : "$rewardamount $rewardtype",
+
+	"achievement_menu_page_reward_type_cc" : "Continental Coins",
+	"achievement_menu_page_reward_type_money" : "Spendable cash",
+	"achievement_menu_page_reward_type_offshore" : "Offshore cash",
 
 	"custom_ach_reloaded_1_name" : "Custom Achievement Mod Reload I",
 	"custom_ach_reloaded_1_desc" : "That should be your first achievement, lol",

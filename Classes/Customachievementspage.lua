@@ -23,6 +23,8 @@ function CustomAchievementsPage:init_achievements()
 			desc_id = CustomAchievement.id_data.data["desc"],
 			objective_id = CustomAchievement.id_data.data["objective"],
 			completed = CustomAchievement.id_data.data["unlocked"],
+			reward_type = CustomAchievement.id_data.data["reward_type"],
+			reward_amount = CustomAchievement.id_data.data["reward_amount"],
 			objectives = {},
 			progress = CustomAchievement.id_data.data["number"],
 			goal = CustomAchievement.id_data.data["goal"],
@@ -42,6 +44,18 @@ function CustomAchievementsPage:init(page_id, page_panel, fullscreen_panel, gui)
 	self:_setup_achievements_list()
 end
 
+function CustomAchievementsPage:format_int(number)
+
+  local i, j, minus, int, fraction = tostring(number):find('([-]?)(%d+)([.]?%d*)')
+
+  -- reverse the int-string and append a comma to all blocks of 3 digits
+  int = int:reverse():gsub("(%d%d%d)", "%1,")
+
+  -- reverse the int-string back remove an optional comma and put the 
+  -- optional minus and fractional part back
+  return minus .. int:reverse():gsub("^,", "") .. fraction
+end
+
 function CustomAchievementsPage:set_achievement_info(trophy, update_size)
 	local info_panel = self._info_scroll:canvas()
 	local title_text = info_panel:child("TitleText")
@@ -54,13 +68,20 @@ function CustomAchievementsPage:set_achievement_info(trophy, update_size)
 	local objective_header = info_panel:child("ObjectiveHeader")
 	local objective_text = info_panel:child("ObjectiveText")
 	local progress_header = info_panel:child("ProgressHeader")
+	local progress_text = info_panel:child("ProgressText")
+	local reward_header = info_panel:child("RewardHeader")
+	local reward_text = info_panel:child("RewardText")
 	local data = trophy:trophy_data()
+
+	CustomAchievement:Unlock("ach_reward")
 
 	title_text:set_text(utf8.to_upper(managers.localization:text(data.name_id)))
 	desc_text:set_text(managers.localization:text(data.desc_id))
 	trophy_image:set_image("guis/textures/mods/CustomAchievement/" .. data.image_id)
 	complete_banner:set_visible(true)
 	desc_text:set_top(complete_banner:bottom() + PANEL_PADDING)
+	reward_header:set_visible(true)
+	reward_text:set_visible(true)
 	
 	if data.completed then
 		complete_text:set_text(managers.localization:to_upper_text("achievement_menu_page_unlocked"))
@@ -83,17 +104,78 @@ function CustomAchievementsPage:set_achievement_info(trophy, update_size)
 	if data.goal > 0 then
 		if not data.completed then
 			progress_header:set_visible(true)
-			local text = tostring(data.progress .. " / " .. data.goal)
-			progress_header:set_text(text)
-			progress_header:set_top(objective_text:bottom() + PANEL_PADDING)
+			progress_text:set_visible(true)
+			local text = tostring(self:format_int(data.progress) .. " / " .. self:format_int(data.goal))
+			progress_text:set_text(text)
 		else
 			progress_header:set_visible(true)
-			local text = tostring(data.goal .. " / " .. data.goal)
-			progress_header:set_text(text)
-			progress_header:set_top(objective_text:bottom() + PANEL_PADDING)
+			progress_text:set_visible(true)
+			local text = tostring(self:format_int(data.goal) .. " / " .. self:format_int(data.goal))
+			progress_text:set_text(text)
 		end
 	else
 		progress_header:set_visible(false)
+		progress_text:set_visible(false)
+	end
+
+	if data.reward_type and data.reward_amount then
+		if data.reward_type ~= "none" and data.reward_amount > 0 then
+
+			if data.reward_type == "cc" then
+				local str_reward_type = " Continental Coins"
+				local str_reward_amount = data.reward_amount
+
+				if str_reward_amount < 0 then
+					str_reward_amount = 0
+				end
+
+				if str_reward_amount > 10 then
+					str_reward_amount = 10
+				end
+
+				reward_text:set_text(self:format_int(str_reward_amount) .. str_reward_type)
+			elseif data.reward_type == "money" then
+				local str_reward_type = "$ Spendable cash"
+				local str_reward_amount = data.reward_amount
+
+				if str_reward_amount < 0 then
+					str_reward_amount = 0
+				end
+
+				if str_reward_amount > 1000000 then
+					str_reward_amount = 1000000
+				end
+
+				reward_text:set_text(self:format_int(str_reward_amount) .. str_reward_type)
+			elseif data.reward_type == "offshore" then
+				local str_reward_type = "NOT IMPLEMENTED"
+				reward_text:set_text(str_reward_amount .. str_reward_type)
+
+			elseif data.reward_type == "experience" then
+				local str_reward_type = " EXP"
+				local str_reward_amount = data.reward_amount
+
+				if str_reward_amount < 0 then
+					str_reward_amount = 0
+				end
+
+				if str_reward_amount > 500000 then
+					str_reward_amount = 500000
+				end
+
+				local current_level = managers.experience:current_level()
+				local lv_div = 101 - current_level
+				local real_xp = math.floor(str_reward_amount / lv_div)
+
+				reward_text:set_text(self:format_int(real_xp) .. str_reward_type)
+			end
+		else
+			reward_header:set_visible(false)
+			reward_text:set_visible(false)
+		end
+	else
+		reward_header:set_visible(false)
+		reward_text:set_visible(false)
 	end
 
 	--self._progress_items = {}
@@ -389,6 +471,56 @@ function CustomAchievementsPage:_setup_trophies_info()
 	})
 	self:make_fine_text(progress_header)
 	progress_header:set_top(objective_text:bottom() + PANEL_PADDING)
+	local progress_text = scroll:canvas():text({
+		name = "ProgressText",
+		font_size = small_font_size,
+		font = small_font,
+		layer = 1,
+		blend_mode = "add",
+		color = tweak_data.screen_colors.title,
+		text = managers.localization:text("menu_cs_daily_available"),
+		w = scroll:canvas():w(),
+		wrap = true,
+		word_wrap = true,
+		align = "left",
+		vertical = "top",
+		halign = "left",
+		valign = "top"
+	})
+	self:make_fine_text(progress_text)
+	progress_text:set_top(progress_header:bottom())
+	local reward_header_text = scroll:canvas():text({
+		name = "RewardHeader",
+		font_size = small_font_size,
+		font = small_font,
+		layer = 1,
+		blend_mode = "add",
+		color = tweak_data.screen_colors.challenge_title,
+		text = utf8.to_upper(managers.localization:text("achievement_menu_page_reward_header")),
+		w = scroll:canvas():w(),
+		align = "left",
+		vertical = "top",
+		halign = "left",
+		valign = "top"
+	})
+	self:make_fine_text(reward_header_text)
+	reward_header_text:set_top(progress_text:bottom())
+	local reward_text = scroll:canvas():text({
+		name = "RewardText",
+		font_size = small_font_size,
+		font = small_font,
+		layer = 1,
+		blend_mode = "add",
+		color = tweak_data.screen_colors.title,
+		text = "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+		w = scroll:canvas():w(),
+		align = "left",
+		vertical = "top",
+		halign = "left",
+		valign = "top"
+	})
+	reward_text:set_top(reward_header_text:bottom())
+	self:make_fine_text(reward_text)
 	scroll:update_canvas_size()
 end
 function CustomAchievementsPage:_setup_trophies_counter()
