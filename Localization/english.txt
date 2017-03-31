@@ -12,6 +12,8 @@
 	"achievement_menu_page_obj" : "",
 	"achievement_menu_page_reward_header" : "REWARD:",
 	"achievement_menu_page_reward_text" : "$rewardamount $rewardtype",
+	"achievement_menu_page_hidden_marks" : "Hidden Achievement",
+	"achievement_menu_page_hidden_desc" : "This achievement is hidden.",
 
 	"achievement_menu_page_reward_type_cc" : "Continental Coins",
 	"achievement_menu_page_reward_type_money" : "Spendable cash",

@@ -29,7 +29,8 @@ function CustomAchievementsPage:init_achievements()
 			progress = CustomAchievement.id_data.data["number"],
 			goal = CustomAchievement.id_data.data["goal"],
 			show_progress = true,
-			image_id = CustomAchievement.id_data.data["texture"]
+			image_id = CustomAchievement.id_data.data["texture"],
+			is_hidden = CustomAchievement.id_data.data["is_hidden"]
 		})
 	end
 end
@@ -72,17 +73,32 @@ function CustomAchievementsPage:set_achievement_info(trophy, update_size)
 	local reward_header = info_panel:child("RewardHeader")
 	local reward_text = info_panel:child("RewardText")
 	local data = trophy:trophy_data()
+	local hide_informations = false
 
-	CustomAchievement:Unlock("ach_reward")
+	if data.is_hidden and not data.completed then
+		hide_informations = true
+	else
+		hide_informations = false
+	end
 
-	title_text:set_text(utf8.to_upper(managers.localization:text(data.name_id)))
-	desc_text:set_text(managers.localization:text(data.desc_id))
-	trophy_image:set_image("guis/textures/mods/CustomAchievement/" .. data.image_id)
-	complete_banner:set_visible(true)
-	desc_text:set_top(complete_banner:bottom() + PANEL_PADDING)
-	reward_header:set_visible(true)
-	reward_text:set_visible(true)
-	
+	if hide_informations then
+		title_text:set_text(utf8.to_upper(managers.localization:text("achievement_menu_page_hidden_marks")))
+		desc_text:set_text(managers.localization:text("achievement_menu_page_hidden_desc"))
+		trophy_image:set_image("guis/textures/mods/CustomAchievement/hidden")
+		complete_banner:set_visible(true)
+		desc_text:set_top(complete_banner:bottom() + PANEL_PADDING)
+		reward_header:set_visible(true)
+		reward_text:set_visible(true)
+	else
+		title_text:set_text(utf8.to_upper(managers.localization:text(data.name_id)))
+		desc_text:set_text(managers.localization:text(data.desc_id))
+		trophy_image:set_image("guis/textures/mods/CustomAchievement/" .. data.image_id)
+		complete_banner:set_visible(true)
+		desc_text:set_top(complete_banner:bottom() + PANEL_PADDING)
+		reward_header:set_visible(true)
+		reward_text:set_visible(true)
+	end
+
 	if data.completed then
 		complete_text:set_text(managers.localization:to_upper_text("achievement_menu_page_unlocked"))
 		complete_text:set_color(Color(255, 128, 255, 0) / 255)
@@ -97,11 +113,17 @@ function CustomAchievementsPage:set_achievement_info(trophy, update_size)
 	desc_text:set_h(h)
 	objective_header:set_top(desc_text:bottom() + PANEL_PADDING)
 	objective_text:set_top(objective_header:bottom())
-	objective_text:set_text(managers.localization:text(data.objective_id))
+
+	if hide_informations then
+		objective_text:set_text(managers.localization:text("achievement_menu_page_hidden_marks"))
+	else
+		objective_text:set_text(managers.localization:text(data.objective_id))
+	end
+
 	local _, _, _, h = objective_text:text_rect()
 	objective_text:set_h(h)
 	
-	if data.goal > 0 then
+	if data.goal > 0 and not hide_informations then
 		if not data.completed then
 			progress_header:set_visible(true)
 			progress_text:set_visible(true)
@@ -118,7 +140,7 @@ function CustomAchievementsPage:set_achievement_info(trophy, update_size)
 		progress_text:set_visible(false)
 	end
 
-	if data.reward_type and data.reward_amount then
+	if data.reward_type and data.reward_amount and not hide_informations then
 		if data.reward_type ~= "none" and data.reward_amount > 0 then
 
 			if data.reward_type == "cc" then
@@ -200,7 +222,10 @@ function CustomAchievementsPage:_setup_achievements_list()
 	table.insert(self._scrollable_panels, scroll)
 	local trophies = {}
 	for idx, trophy in ipairs(self.achievement_data) do
-		if not trophy.secret then
+		if trophy.is_hidden and not trophy.completed then
+			trophy.name_id = "achievement_menu_page_hidden_marks"
+			table.insert(trophies, trophy)
+		else
 			table.insert(trophies, trophy)
 		end
 	end
@@ -226,46 +251,7 @@ function CustomAchievementsPage:_setup_achievements_list()
 	end
 end
 
-function CustomAchievementsPage:_setup_trophies_list()
-	self._trophies = {}
-	local scroll = ScrollablePanel:new(self:panel(), "TrophiesPanel", {padding = 0})
-	BoxGuiObject:new(scroll:panel(), {
-		sides = {
-			1,
-			1,
-			1,
-			1
-		}
-	})
-	self._trophies_scroll = scroll
-	table.insert(self._scrollable_panels, scroll)
-	local trophies = {}
-	for idx, trophy in ipairs(managers.custom_safehouse:trophies()) do
-		if not trophy.secret or trophy.completed then
-			table.insert(trophies, trophy)
-		end
-	end
-	table.sort(trophies, function(a, b)
-		return managers.localization:text(a.name_id) < managers.localization:text(b.name_id)
-	end)
-	for idx, trophy in ipairs(trophies) do
-		local trophy_btn = CustomSafehouseGuiTrophyItem:new(scroll:canvas(), trophy, 0, idx)
-		table.insert(self._trophies, trophy_btn)
-	end
-	table.sort(self._trophies, function(a, b)
-		return a:priority() < b:priority()
-	end)
-	local canvas_h = 0
-	for idx, trophy in ipairs(self._trophies or {}) do
-		trophy:set_position(idx)
-		trophy:link(self._trophies[idx - 1], self._trophies[idx + 1])
-		canvas_h = math.max(canvas_h, trophy:bottom())
-	end
-	scroll:set_canvas_size(nil, canvas_h)
-	if #self._trophies > 0 then
-		self:_set_selected(self._trophies[1], true)
-	end
-end
+
 function CustomAchievementsPage:_setup_trophies_info()
 	local buttons_panel = self:info_panel():panel({
 		name = "buttons_panel"
@@ -577,94 +563,7 @@ function CustomAchievementsPage:update_info_panel_width(new_width)
 		self:set_achievement_info(self._selected_trophy, false)
 	end
 end
-function CustomAchievementsPage:set_trophy_info(trophy, update_size)
-	local info_panel = self._info_scroll:canvas()
-	local title_text = info_panel:child("TitleText")
-	local image_panel = info_panel:child("TrophyImagePanel")
-	local trophy_image = image_panel:child("TrophyImage")
-	local complete_banner = info_panel:child("CompleteBannerPanel")
-	local complete_text = complete_banner:child("CompleteText")
-	local complete_fill = complete_banner:child("CompleteBannerFill")
-	local desc_text = info_panel:child("DescText")
-	local objective_header = info_panel:child("ObjectiveHeader")
-	local objective_text = info_panel:child("ObjectiveText")
-	local progress_header = info_panel:child("ProgressHeader")
-	local data = trophy:trophy_data()
-	title_text:set_text(utf8.to_upper(managers.localization:text(data.name_id)))
-	desc_text:set_text(managers.localization:text(data.desc_id))
-	trophy_image:set_image("guis/textures/mods/CustomAchievement/" .. self.data.image_id)
-	if data.completed then
-		complete_banner:set_visible(true)
-		desc_text:set_top(complete_banner:bottom() + PANEL_PADDING)
-	else
-		complete_banner:set_visible(false)
-		desc_text:set_top(image_panel:bottom() + PANEL_PADDING)
-	end
-	if data.displayed then
-		complete_text:set_text(managers.localization:to_upper_text("menu_trophy_displayed"))
-		complete_text:set_color(tweak_data.screen_colors.challenge_completed_color)
-		complete_fill:set_color(tweak_data.screen_colors.challenge_completed_color)
-	else
-		complete_text:set_text(managers.localization:to_upper_text("menu_trophy_not_displayed"))
-		complete_text:set_color(tweak_data.screen_colors.important_1)
-		complete_fill:set_color(tweak_data.screen_colors.important_1)
-	end
-	local _, _, _, h = desc_text:text_rect()
-	desc_text:set_h(h)
-	objective_header:set_top(desc_text:bottom() + PANEL_PADDING)
-	objective_text:set_top(objective_header:bottom())
-	local macros = {}
-	if #data.objectives > 0 then
-		local max = 0
-		for idx, objective in ipairs(data.objectives) do
-			max = math.max(max, objective.max_progress)
-		end
-		macros.max_progress = tostring(max)
-	end
-	objective_text:set_text(managers.localization:text(data.objective_id, macros))
-	local _, _, _, h = objective_text:text_rect()
-	objective_text:set_h(h)
-	if self._progress_items then
-		for _, item in ipairs(self._progress_items) do
-			item:destroy()
-		end
-		self._progress_items = {}
-	end
-	if data.show_progress then
-		progress_header:set_visible(true)
-		progress_header:set_top(objective_text:bottom() + PANEL_PADDING)
-		self._progress_items = {}
-		for idx, objective in ipairs(data.objectives) do
-			if data.completed then
-				objective.completed = true
-				objective.progress = objective.max_progress
-			end
-			local item = CustomSafehouseGuiProgressItem:new(info_panel, objective)
-			table.insert(self._progress_items, item)
-			local pos = progress_header:bottom() + CustomSafehouseGuiProgressItem.h * (idx - 1)
-			item:set_top(pos)
-		end
-	else
-		progress_header:set_visible(false)
-	end
-	if update_size then
-		self._info_scroll:update_canvas_size()
-	end
-end
-function CustomAchievementsPage:_show_all_trophies()
-	for i, trophy in ipairs(self._trophies) do
-		managers.custom_safehouse:set_trophy_displayed(trophy:trophy_data().id, true)
-		trophy:refresh()
-	end
-	self:refresh()
-end
-function CustomAchievementsPage:_hide_all_trophies()
-	for i, trophy in ipairs(self._trophies) do
-		managers.custom_safehouse:set_trophy_displayed(trophy:trophy_data().id, false)
-		trophy:refresh()
-	end
-	self:refresh()
-end
+
 function CustomAchievementsPage:_set_selected(trophy, skip_sound)
 	if not trophy then
 		return false

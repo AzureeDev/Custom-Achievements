@@ -9,5 +9,6 @@
    "goal":10,
    "displayed":false,
    "unlocked":false,
-   "texture":"default"
+   "texture":"default",
+   "is_hidden":false
 }
