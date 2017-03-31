@@ -116,8 +116,9 @@ function ClassCustomAchievement:Reward()
 					end
 
 					local current_level = managers.experience:current_level()
-					local lv_div = 101 - current_level
-					local real_xp = math.floor(json_reward_amount / lv_div)
+					local lv_div = current_level / 100
+					local new_reward = json_reward_amount * lv_div
+					local real_xp = new_reward
 
 					managers.experience:debug_add_points(real_xp, false)
 				else

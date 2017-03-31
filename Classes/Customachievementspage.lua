@@ -127,12 +127,13 @@ function CustomAchievementsPage:set_achievement_info(trophy, update_size)
 		if not data.completed then
 			progress_header:set_visible(true)
 			progress_text:set_visible(true)
-			local text = tostring(self:format_int(data.progress) .. " / " .. self:format_int(data.goal))
+			local percent_div = math.floor(data.progress * 100 / data.goal)
+			local text = tostring(self:format_int(data.progress) .. " / " .. self:format_int(data.goal) .. " ( " .. percent_div .. "% )")
 			progress_text:set_text(text)
 		else
 			progress_header:set_visible(true)
 			progress_text:set_visible(true)
-			local text = tostring(self:format_int(data.goal) .. " / " .. self:format_int(data.goal))
+			local text = tostring(self:format_int(data.goal) .. " / " .. self:format_int(data.goal) .. " ( 100% )")
 			progress_text:set_text(text)
 		end
 	else
@@ -186,8 +187,9 @@ function CustomAchievementsPage:set_achievement_info(trophy, update_size)
 				end
 
 				local current_level = managers.experience:current_level()
-				local lv_div = 101 - current_level
-				local real_xp = math.floor(str_reward_amount / lv_div)
+				local lv_div = current_level / 100
+				local new_reward = str_reward_amount * lv_div
+				local real_xp = math.floor(new_reward)
 
 				reward_text:set_text(self:format_int(real_xp) .. str_reward_type)
 			end
