@@ -283,13 +283,18 @@ function ClassCustomAchievement:AddKillsByWeaponTotal(id_achievement, id_weapon)
 	if game_state_machine then
 		self:Load(id_achievement)
 
-		if managers.statistics._global.session.killed_by_weapon[id_weapon] and managers.statistics._global.session.killed_by_weapon[id_weapon].count then
-			self.id_data.data["number"] = self.id_data.data["number"] + managers.statistics._global.session.killed_by_weapon[id_weapon].count
-			self:Save(id_achievement)
+		local current_state = managers.player:get_current_state()
+		local current_weapon = current_state:get_equipped_weapon()
 
-			if self.id_data.data["number"] >= self.id_data.data["goal"] then
-				if managers.job:stage_success() then
-					self:Unlock(id_achievement)
+		if managers.statistics._global.session.killed_by_weapon[id_weapon] and managers.statistics._global.session.killed_by_weapon[id_weapon].count then
+			if current_weapon.name_id == id_weapon then
+				if not self.id_data.data["unlocked"] then
+					self.id_data.data["number"] = self.id_data.data["number"] + 1
+					self:Save(id_achievement)
+
+					if self.id_data.data["number"] >= self.id_data.data["goal"] then
+						self:Unlock(id_achievement)
+					end
 				end
 			end
 		end
@@ -299,11 +304,18 @@ end
 function ClassCustomAchievement:isKillsFilledByWeaponSession(id_achievement, id_weapon)
 	if game_state_machine then
 		self:Load(id_achievement)
-		if managers.statistics._global.session.killed_by_weapon[id_weapon] and managers.statistics._global.session.killed_by_weapon[id_weapon].count >= self.id_data.data["goal"] then
-			if managers.job:stage_success() then
-				self:Unlock(id_achievement)
+
+		local current_state = managers.player:get_current_state()
+		local current_weapon = current_state:get_equipped_weapon()
+
+		if current_weapon.name_id == id_weapon then
+			if not self.id_data.data["unlocked"] then
+				if managers.statistics._global.session.killed_by_weapon[id_weapon] and managers.statistics._global.session.killed_by_weapon[id_weapon].count >= self.id_data.data["goal"] then
+					self:Unlock(id_achievement)
+				end
 			end
 		end
+	
 	end
 end
 
@@ -313,15 +325,19 @@ function ClassCustomAchievement:AddKillsByWeaponTotalOnMap(id_achievement, id_we
 
 		local required_level = id_level
 		local current_level = managers.job:current_level_id()
+		local current_state = managers.player:get_current_state()
+		local current_weapon = current_state:get_equipped_weapon()
 
-		if required_level == current_level then
+		if current_level == required_level then
 			if managers.statistics._global.session.killed_by_weapon[id_weapon] and managers.statistics._global.session.killed_by_weapon[id_weapon].count then
-				if managers.job:stage_success() then	
-					self.id_data.data["number"] = self.id_data.data["number"] + managers.statistics._global.session.killed_by_weapon[id_weapon].count
-					self:Save(id_achievement)
+				if current_weapon.name_id == id_weapon then
+					if not self.id_data.data["unlocked"] then
+						self.id_data.data["number"] = self.id_data.data["number"] + 1
+						self:Save(id_achievement)
 
-					if self.id_data.data["number"] >= self.id_data.data["goal"] then
-						self:Unlock(id_achievement)
+						if self.id_data.data["number"] >= self.id_data.data["goal"] then
+							self:Unlock(id_achievement)
+						end
 					end
 				end
 			end
@@ -335,11 +351,15 @@ function ClassCustomAchievement:isKillsFilledByWeaponSessionOnMap(id_achievement
 
 		local required_level = id_level
 		local current_level = managers.job:current_level_id()
+		local current_state = managers.player:get_current_state()
+		local current_weapon = current_state:get_equipped_weapon()
 
 		if required_level == current_level then
-			if managers.statistics._global.session.killed_by_weapon[id_weapon] and managers.statistics._global.session.killed_by_weapon[id_weapon].count >= self.id_data.data["goal"] then
-				if managers.job:stage_success() then	
-					self:Unlock(id_achievement)
+			if current_weapon.name_id == id_weapon then
+				if not self.id_data.data["unlocked"] then
+					if managers.statistics._global.session.killed_by_weapon[id_weapon] and managers.statistics._global.session.killed_by_weapon[id_weapon].count >= self.id_data.data["goal"] then
+						self:Unlock(id_achievement)
+					end
 				end
 			end
 		end
@@ -352,15 +372,19 @@ function ClassCustomAchievement:AddKillsByWeaponTotalOnDifficulty(id_achievement
 
 		local required_difficulty = id_diff
 		local current_diff = Global.game_settings.difficulty
+		local current_state = managers.player:get_current_state()
+		local current_weapon = current_state:get_equipped_weapon()
 
-		if required_difficulty == current_diff then
+		if current_diff == required_diff then
 			if managers.statistics._global.session.killed_by_weapon[id_weapon] and managers.statistics._global.session.killed_by_weapon[id_weapon].count then
-				if managers.job:stage_success() then	
-					self.id_data.data["number"] = self.id_data.data["number"] + managers.statistics._global.session.killed_by_weapon[id_weapon].count
-					self:Save(id_achievement)
+				if current_weapon.name_id == id_weapon then
+					if not self.id_data.data["unlocked"] then
+						self.id_data.data["number"] = self.id_data.data["number"] + 1
+						self:Save(id_achievement)
 
-					if self.id_data.data["number"] >= self.id_data.data["goal"] then
-						self:Unlock(id_achievement)
+						if self.id_data.data["number"] >= self.id_data.data["goal"] then
+							self:Unlock(id_achievement)
+						end
 					end
 				end
 			end
@@ -374,11 +398,15 @@ function ClassCustomAchievement:isKillsFilledByWeaponSessionOnDifficulty(id_achi
 
 		local required_difficulty = id_diff
 		local current_diff = Global.game_settings.difficulty
+		local current_state = managers.player:get_current_state()
+		local current_weapon = current_state:get_equipped_weapon()
 
 		if required_difficulty == current_diff then
-			if managers.statistics._global.session.killed_by_weapon[id_weapon] and managers.statistics._global.session.killed_by_weapon[id_weapon].count >= self.id_data.data["goal"] then
-				if managers.job:stage_success() then
-					self:Unlock(id_achievement)
+			if current_weapon.name_id == id_weapon then
+				if not self.id_data.data["unlocked"] then
+					if managers.statistics._global.session.killed_by_weapon[id_weapon] and managers.statistics._global.session.killed_by_weapon[id_weapon].count >= self.id_data.data["goal"] then
+						self:Unlock(id_achievement)
+					end
 				end
 			end
 		end
@@ -393,16 +421,20 @@ function ClassCustomAchievement:AddKillsByWeaponTotalOnMapAndDifficulty(id_achie
 		local current_level = managers.job:current_level_id()
 		local required_difficulty = id_diff
 		local current_diff = Global.game_settings.difficulty
+		local current_state = managers.player:get_current_state()
+		local current_weapon = current_state:get_equipped_weapon()
 
-		if required_level == current_level then
-			if required_difficulty == current_diff then
+		if current_level == required_level then
+			if current_diff == required_diff then
 				if managers.statistics._global.session.killed_by_weapon[id_weapon] and managers.statistics._global.session.killed_by_weapon[id_weapon].count then
-					if managers.job:stage_success() then	
-						self.id_data.data["number"] = self.id_data.data["number"] + managers.statistics._global.session.killed_by_weapon[id_weapon].count
-						self:Save(id_achievement)
+					if current_weapon.name_id == id_weapon then
+						if not self.id_data.data["unlocked"] then
+							self.id_data.data["number"] = self.id_data.data["number"] + 1
+							self:Save(id_achievement)
 
-						if self.id_data.data["number"] >= self.id_data.data["goal"] then
-							self:Unlock(id_achievement)
+							if self.id_data.data["number"] >= self.id_data.data["goal"] then
+								self:Unlock(id_achievement)
+							end
 						end
 					end
 				end
@@ -419,12 +451,16 @@ function ClassCustomAchievement:isKillsFilledByWeaponSessionOnMapAndDifficulty(i
 		local current_level = managers.job:current_level_id()
 		local required_difficulty = id_diff
 		local current_diff = Global.game_settings.difficulty
+		local current_state = managers.player:get_current_state()
+		local current_weapon = current_state:get_equipped_weapon()
 
 		if required_level == current_level then
 			if required_difficulty == current_diff then
-				if managers.statistics._global.session.killed_by_weapon[id_weapon] and managers.statistics._global.session.killed_by_weapon[id_weapon].count >= self.id_data.data["goal"] then
-					if managers.job:stage_success() then
-						self:Unlock(id_achievement)
+				if current_weapon.name_id == id_weapon then
+					if not self.id_data.data["unlocked"] then
+						if managers.statistics._global.session.killed_by_weapon[id_weapon] and managers.statistics._global.session.killed_by_weapon[id_weapon].count >= self.id_data.data["goal"] then
+							self:Unlock(id_achievement)
+						end
 					end
 				end
 			end
@@ -472,6 +508,154 @@ function ClassCustomAchievement:WeaponEquippedOnDiff(ach_id, weapon_id, diff_id)
 					end
 				end
 			end
+		end
+	end
+end
+
+function ClassCustomAchievement:isSpecialKilled(id_achievement, id_special, data)	-- Must be hooked on StatisticsManager:killed
+	self:Load(id_achievement)
+	
+	if data then
+		if data.name == id_special then
+			self:IncreaseCounter(id_achievement, 1)
+		end
+	end
+end
+
+function ClassCustomAchievement:isSpecialKilledWithWeapon(id_achievement, id_weapon, id_special, data) -- Must be hooked on StatisticsManager:killed
+	self:Load(id_achievement)
+
+	if data then
+		
+		local current_state = managers.player:get_current_state()
+		local current_weapon = current_state:get_equipped_weapon()
+
+		if data.name == id_special then
+			if managers.statistics._global.session.killed_by_weapon[id_weapon] and managers.statistics._global.session.killed_by_weapon[id_weapon].count then
+				if current_weapon.name_id == id_weapon then
+					if not self.id_data.data["unlocked"] then
+						self.id_data.data["number"] = self.id_data.data["number"] + 1
+						self:Save(id_achievement)
+
+						if self.id_data.data["number"] >= self.id_data.data["goal"] then
+							self:Unlock(id_achievement)
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+function ClassCustomAchievement:isSpecialKilledOnMap(id_achievement, id_map, id_special, data) -- Must be hooked on StatisticsManager:killed
+	local required_level = id_map
+	local current_level = managers.job:current_level_id()
+	self:Load(id_achievement)
+
+	if data then
+		if current_level == required_level then
+			if data.name == id_special then
+				if not self.id_data.data["unlocked"] then
+					self:IncreaseCounter(id_achievement, 1)
+				end
+			end
+		end
+	end
+end
+
+function ClassCustomAchievement:isSpecialKilledOnDifficulty(id_achievement, id_diff, id_special, data) -- Must be hooked on StatisticsManager:killed
+	local required_difficulty = diff_id
+	local current_diff = Global.game_settings.difficulty
+
+	self:Load(id_achievement)
+
+	if data then
+		if required_difficulty == current_diff then
+			if data.name == id_special then
+				if not self.id_data.data["unlocked"] then
+					self:IncreaseCounter(id_achievement, 1)
+				end
+			end
+		end
+	end
+end
+
+function ClassCustomAchievement:isSpecialKilledOnMapWithWeapon(id_achievement, id_map, id_weapon, id_special, data) -- Must be hooked on StatisticsManager:killed
+	local required_level = id_map
+	local current_level = managers.job:current_level_id()
+	self:Load(id_achievement)
+
+	if data then
+		
+		local current_state = managers.player:get_current_state()
+		local current_weapon = current_state:get_equipped_weapon()
+
+		if required_level == current_level then
+			if data.name == id_special then
+				if managers.statistics._global.session.killed_by_weapon[id_weapon] and managers.statistics._global.session.killed_by_weapon[id_weapon].count then
+					if current_weapon.name_id == id_weapon then
+						if not self.id_data.data["unlocked"] then
+							self.id_data.data["number"] = self.id_data.data["number"] + 1
+							self:Save(id_achievement)
+
+							if self.id_data.data["number"] >= self.id_data.data["goal"] then
+								self:Unlock(id_achievement)
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+function ClassCustomAchievement:isSpecialKilledOnMapAndDifficultyWithWeapon(id_achievement, id_map, id_diff, id_weapon, id_special, data)
+	local required_level = id_map
+	local current_level = managers.job:current_level_id()
+	local required_difficulty = diff_id
+	local current_diff = Global.game_settings.difficulty
+
+	self:Load(id_achievement)
+
+	if data then
+		local current_state = managers.player:get_current_state()
+		local current_weapon = current_state:get_equipped_weapon()
+
+		if required_level == current_level then
+			if required_difficulty == current_diff then
+				if data.name == id_special then
+					if managers.statistics._global.session.killed_by_weapon[id_weapon] and managers.statistics._global.session.killed_by_weapon[id_weapon].count then
+						if current_weapon.name_id == id_weapon then
+							if not self.id_data.data["unlocked"] then
+								self.id_data.data["number"] = self.id_data.data["number"] + 1
+								self:Save(id_achievement)
+
+								if self.id_data.data["number"] >= self.id_data.data["goal"] then
+									self:Unlock(id_achievement)
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+function ClassCustomAchievement:isStealth()
+	if managers.groupai:state():whisper_mode() then
+		return true
+	else
+		return false
+	end
+end
+
+function ClassCustomAchievement:isHeadshot(data) -- Must be hooked on StatisticsManager:killed
+	if data then
+		if data.head_shot == 1 then
+			return true
+		else
+			return false
 		end
 	end
 end

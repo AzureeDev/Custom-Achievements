@@ -34,4 +34,8 @@
 	"custom_ach_reloaded_4_name" : "Custom Achievement Mod Reload IV",
 	"custom_ach_reloaded_4_desc" : "o_o",
 	"custom_ach_reloaded_4_obj" : "Reload the mod 10,000 times.",
+
+	"achievement_name" : "This is a name.",
+	"achievement_desc" : "This is a description.",
+	"achievement_objective" : "This is an objective.",
 }
