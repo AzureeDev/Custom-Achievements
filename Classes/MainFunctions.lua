@@ -564,7 +564,7 @@ function ClassCustomAchievement:isSpecialKilledOnMap(id_achievement, id_map, id_
 end
 
 function ClassCustomAchievement:isSpecialKilledOnDifficulty(id_achievement, id_diff, id_special, data) -- Must be hooked on StatisticsManager:killed
-	local required_difficulty = diff_id
+	local required_difficulty = id_diff
 	local current_diff = Global.game_settings.difficulty
 
 	self:Load(id_achievement)
@@ -612,7 +612,7 @@ end
 function ClassCustomAchievement:isSpecialKilledOnMapAndDifficultyWithWeapon(id_achievement, id_map, id_diff, id_weapon, id_special, data)
 	local required_level = id_map
 	local current_level = managers.job:current_level_id()
-	local required_difficulty = diff_id
+	local required_difficulty = id_diff
 	local current_diff = Global.game_settings.difficulty
 
 	self:Load(id_achievement)
