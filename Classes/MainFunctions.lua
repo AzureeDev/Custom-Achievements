@@ -56,7 +56,10 @@ function ClassCustomAchievement:Unlock(id_achievement) -- Once it's done, you un
 			local achievement_name = self.id_data.data["name"]
 			local achievement_desc = self.id_data.data["objective"]
 
-			--managers.mission:call_global_event(Message.OnSideJobComplete)
+			if managers.hud then
+				managers.hud:post_event("Achievement_challenge")
+			end
+			
 			managers.chat:achievement_unlocked_message(ChatManager.GAME, managers.localization:text("achievement_unlocked_chat"))
 			managers.chat:achievement_unlocked_message(ChatManager.GAME, managers.localization:text(achievement_name))
 			managers.chat:achievement_unlocked_message(ChatManager.GAME, managers.localization:text(achievement_desc))

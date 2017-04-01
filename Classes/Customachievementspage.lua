@@ -201,12 +201,6 @@ function CustomAchievementsPage:set_achievement_info(trophy, update_size)
 		reward_header:set_visible(false)
 		reward_text:set_visible(false)
 	end
-
-	--self._progress_items = {}
-	--local item = self:progress_init(info_panel, data.progress, data.goal)
-	--table.insert(self._progress_items, item)
-	--local pos = progress_header:bottom() + CustomSafehouseGuiProgressItem.h * (idx - 1)
-	--item:set_top(pos)
 end
 
 function CustomAchievementsPage:_setup_achievements_list()
@@ -815,7 +809,7 @@ function CustomAchievementsPage:progress_init(parent_panel, progression, progres
 		layer = 1,
 		blend_mode = "add",
 		color = tweak_data.screen_colors.text,
-		text = managers.localization:text("achievement_menu_page_obj"),
+		text = "",
 		w = self._panel:w(),
 		h = self._panel:h(),
 		align = "left",
@@ -836,7 +830,7 @@ function CustomAchievementsPage:progress_init(parent_panel, progression, progres
 				1
 			}
 		})
-		local color = self._progression >= self.progression_max and tweak_data.screen_colors.challenge_completed_color or tweak_data.screen_colors.button_stage_3
+		local color = self._progression >= self._progression_max and tweak_data.screen_colors.challenge_completed_color or tweak_data.screen_colors.button_stage_3
 		self._progress_fill = self._progress_panel:rect({
 			w = self._panel:w() * (self._progression / self._progression_max),
 			color = color:with_alpha(0.4)
@@ -849,7 +843,7 @@ function CustomAchievementsPage:progress_init(parent_panel, progression, progres
 			layer = 1,
 			blend_mode = "add",
 			color = tweak_data.screen_colors.text,
-			text = tostring(self._progression) .. "/" .. tostring(self._progression_max),
+			text = self._progression .. "/" .. self._progression_max,
 			w = self._panel:w() - PANEL_PADDING * 2,
 			h = self._progress_panel:h(),
 			x = PANEL_PADDING,
@@ -858,24 +852,6 @@ function CustomAchievementsPage:progress_init(parent_panel, progression, progres
 			halign = "scale",
 			valign = "scale"
 		})
-	else
-		local texture, texture_rect = "guis/textures/menu_tickbox", {
-			self._progression >= self.progression_max and 24 or 0,
-			0,
-			24,
-			24
-		}
-		self._checkbox = self._panel:bitmap({
-			name = "checkbox",
-			texture = texture,
-			texture_rect = texture_rect,
-			layer = 1,
-			visible = true,
-			valign = "scale",
-			halign = "scale"
-		})
-		self._checkbox:set_right(self._panel:w())
-		self._checkbox:set_top(self._panel:h() * 0.5 - self._checkbox:h() * 0.5)
 	end
 end
 function CustomAchievementsPage:destroy()
