@@ -123,7 +123,7 @@ function CustomAchievementsPage:set_achievement_info(trophy, update_size)
 	local _, _, _, h = objective_text:text_rect()
 	objective_text:set_h(h)
 	
-	if data.goal > 0 and not hide_informations then
+	if data.goal and data.goal > 0 and not hide_informations then
 		if not data.completed then
 			progress_header:set_visible(true)
 			progress_text:set_visible(true)
@@ -171,8 +171,10 @@ function CustomAchievementsPage:set_achievement_info(trophy, update_size)
 
 				reward_text:set_text(self:format_int(str_reward_amount) .. str_reward_type)
 			elseif data.reward_type == "offshore" then
-				local str_reward_type = "NOT IMPLEMENTED"
-				reward_text:set_text(str_reward_amount .. str_reward_type)
+				local str_reward_type = "$ Offshore"
+				local str_reward_amount = data.reward_amount
+
+				reward_text:set_text(self:format_int(str_reward_amount) .. str_reward_type)
 
 			elseif data.reward_type == "experience" then
 				local str_reward_type = " EXP"
