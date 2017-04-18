@@ -9,6 +9,8 @@
 	"achievement_menu_page_unlocked" : "Unlocked",
 	"achievement_menu_page_locked" : "Locked",
 	"achievement_menu_page_counter" : "$completed of $total achievements completed - $percent%",
+	"achievement_menu_page_points" : "Rank Points : $points",
+	"achievement_menu_page_rank_title" : "Rank: ",
 	"achievement_menu_page_obj" : "",
 	"achievement_menu_page_reward_header" : "REWARD:",
 	"achievement_menu_page_reward_text" : "$rewardamount $rewardtype",
