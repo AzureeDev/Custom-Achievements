@@ -41,38 +41,10 @@ function CustomAchievementsPage:init(page_id, page_panel, fullscreen_panel, gui)
 	self.make_fine_text = BlackMarketGui.make_fine_text
 	self._scrollable_panels = {}
 	self:init_achievements()
-	self:init_achievement_rank()
+	CustomAchievement:init_achievement_rank()
 	self:_setup_trophies_counter()
 	self:_setup_trophies_info()
 	self:_setup_achievements_list()
-end
-
-function CustomAchievementsPage:init_achievement_rank()
-	self.rank = {}
-	self.rank.none = {}
-	self.rank.none.name = "None"
-	self.rank.none.color = tweak_data.screen_colors.title
-	self.rank.none.points = 0
-
-	self.rank.bronze = {}
-	self.rank.bronze.name = "Bronze"
-	self.rank.bronze.color = Color(255, 188, 94, 0) / 255
-	self.rank.bronze.points = 5
-
-	self.rank.silver = {}
-	self.rank.silver.name = "Silver"
-	self.rank.silver.color = Color(255, 160, 160, 160) / 255
-	self.rank.silver.points = 20
-
-	self.rank.gold = {}
-	self.rank.gold.name = "Gold"
-	self.rank.gold.color = Color(255, 255, 188, 0) / 255
-	self.rank.gold.points = 100
-
-	self.rank.platinum = {}
-	self.rank.platinum.name = "Platinum"
-	self.rank.platinum.color = Color(255, 0, 213, 255) / 255
-	self.rank.platinum.points = 500
 end
 
 function CustomAchievementsPage:format_int(number)
@@ -90,6 +62,8 @@ end
 function CustomAchievementsPage:set_achievement_info(trophy, update_size)
 	local info_panel = self._info_scroll:canvas()
 	local title_text = info_panel:child("TitleText")
+	local trophy_rank_panel = info_panel:child("TrophyIconPanel")
+	local trophy_rank_image = trophy_rank_panel:child("TrophyIcon")
 	local achievement_rank = info_panel:child("RankText")
 	local image_panel = info_panel:child("TrophyImagePanel")
 	local trophy_image = image_panel:child("TrophyImage")
@@ -113,22 +87,28 @@ function CustomAchievementsPage:set_achievement_info(trophy, update_size)
 	end
 
 	if data.rank and data.rank ~= "" then
-		achievement_rank:set_text("RANK: " .. utf8.to_upper(data.rank))
+		achievement_rank:set_text(utf8.to_upper(data.rank))
 
 		if data.rank == "bronze" then
-			achievement_rank:set_color(self.rank.bronze.color)
+			achievement_rank:set_color(CustomAchievement.rank.bronze.color)
+			trophy_rank_image:set_image("guis/textures/mods/CustomAchievement/trophy_icon_bronze")
 		elseif data.rank == "silver" then
-			achievement_rank:set_color(self.rank.silver.color)	
+			achievement_rank:set_color(CustomAchievement.rank.silver.color)
+			trophy_rank_image:set_image("guis/textures/mods/CustomAchievement/trophy_icon_silver")
 		elseif data.rank == "gold" then
-			achievement_rank:set_color(self.rank.gold.color)
+			achievement_rank:set_color(CustomAchievement.rank.gold.color)
+			trophy_rank_image:set_image("guis/textures/mods/CustomAchievement/trophy_icon_gold")
 		elseif data.rank == "platinum" then
-			achievement_rank:set_color(self.rank.platinum.color)
+			achievement_rank:set_color(CustomAchievement.rank.platinum.color)
+			trophy_rank_image:set_image("guis/textures/mods/CustomAchievement/trophy_icon_platinum")
 		end
 
 		achievement_rank:set_visible(true)
+		trophy_rank_panel:set_visible(true)
 		image_panel:set_top(achievement_rank:bottom() + 3)
 	else
 		achievement_rank:set_visible(false)
+		trophy_rank_panel:set_visible(false)
 		image_panel:set_top(title_text:bottom() + 3)
 	end
 
@@ -368,13 +348,34 @@ function CustomAchievementsPage:_setup_trophies_info()
 		halign = "left",
 		valign = "top"
 	})
+	local trophy_rank_panel = scroll:canvas():panel({
+		name = "TrophyIconPanel",
+		layer = 10,
+		w = 24,
+		h = 24
+	})
+	trophy_rank_panel:set_top(trophy_title:bottom() + 3)
+	local trophy_rank_image = trophy_rank_panel:bitmap({
+		name = "TrophyIcon",
+		texture = "guis/textures/mods/CustomAchievement/trophy_icon_platinum",
+		texture_rect = {
+			0,
+			0,
+			256,
+			256
+		},
+		
+		layer = 40,
+		w = trophy_rank_panel:w(),
+		h = trophy_rank_panel:h()
+	})
 	local achievement_rank = scroll:canvas():text({
 		name = "RankText",
 		font_size = medium_font_size,
 		font = medium_font,
 		layer = 1,
 		blend_mode = "add",
-		color = self.rank.gold.color,
+		color = CustomAchievement.rank.gold.color,
 		text = "",
 		visible = false,
 		w = scroll:canvas():w(),
@@ -385,6 +386,7 @@ function CustomAchievementsPage:_setup_trophies_info()
 		valign = "top"
 	})
 	achievement_rank:set_top(trophy_title:bottom() + 3)
+	achievement_rank:set_left(trophy_rank_panel:right() + 3)
 	local image_panel = scroll:canvas():panel({
 		name = "TrophyImagePanel",
 		layer = 10
@@ -580,7 +582,6 @@ end
 function CustomAchievementsPage:_setup_trophies_counter()
 	local total = 0
 	local completed = 0
-	local points_to_add = 0
 
 	for _, trophy in ipairs(self.achievement_data) do
 		total = total + 1
@@ -588,17 +589,15 @@ function CustomAchievementsPage:_setup_trophies_counter()
 			completed = completed + 1			
 			if trophy.rank then
 				if trophy.rank == "bronze" then
-					points_to_add = points_to_add + self.rank.bronze.points
+					CustomAchievement.total_points = CustomAchievement.total_points + CustomAchievement.rank.bronze.points
 				elseif trophy.rank == "silver" then
-					points_to_add = points_to_add + self.rank.silver.points
+					CustomAchievement.total_points = CustomAchievement.total_points + CustomAchievement.rank.silver.points
 				elseif trophy.rank == "gold" then
-					points_to_add = points_to_add + self.rank.gold.points
+					CustomAchievement.total_points = CustomAchievement.total_points + CustomAchievement.rank.gold.points
 				elseif trophy.rank == "platinum" then
-					points_to_add = points_to_add + self.rank.platinum.points
+					CustomAchievement.total_points = CustomAchievement.total_points + CustomAchievement.rank.platinum.points
 				end
 			end
-
-			self.total_points = points_to_add
 		end
 	end
 	local percent = math.floor(completed * 100 / total)
@@ -612,8 +611,9 @@ function CustomAchievementsPage:_setup_trophies_counter()
 	})
 	self:make_fine_text(self._trophy_counter)
 
-	local points = self:format_int(points_to_add)
-	local points_text = managers.localization:to_upper_text("achievement_menu_page_points", {points = points})
+	local points = self:format_int(CustomAchievement.total_points)
+	local rank_level = CustomAchievement:get_rank_level()
+	local points_text = managers.localization:to_upper_text("achievement_menu_page_points", {points = points, rank_level = rank_level})
 	self._achievements_point_count = self._gui._panel:text({
 		text = points_text,
 		font = medium_font,

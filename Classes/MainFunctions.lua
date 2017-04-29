@@ -27,7 +27,6 @@ function ClassCustomAchievement:Load(id_achievement)
 	end
 end
 
-
 function ClassCustomAchievement:Save(id_achievement)
 	if ClassCustomAchievement.Directory ~= nil then
 		local file = io.open( ClassCustomAchievement.Directory .. id_achievement .. ".json" , "w+")
@@ -138,6 +137,47 @@ function ClassCustomAchievement:Reward()
 	else
 		log("[CustomAchievement] ERROR : No data loaded. Skipping reward")
 	end
+end
+
+function ClassCustomAchievement:init_achievement_rank()
+	self.total_points = 0
+
+	self.rank = {}
+	self.rank.none = {}
+	self.rank.none.name = "None"
+	self.rank.none.color = tweak_data.screen_colors.title
+	self.rank.none.points = 0
+
+	self.rank.bronze = {}
+	self.rank.bronze.name = "Bronze"
+	self.rank.bronze.color = Color(255, 188, 94, 0) / 255
+	self.rank.bronze.points = 5
+
+	self.rank.silver = {}
+	self.rank.silver.name = "Silver"
+	self.rank.silver.color = Color(255, 160, 160, 160) / 255
+	self.rank.silver.points = 20
+
+	self.rank.gold = {}
+	self.rank.gold.name = "Gold"
+	self.rank.gold.color = Color(255, 255, 188, 0) / 255
+	self.rank.gold.points = 100
+
+	self.rank.platinum = {}
+	self.rank.platinum.name = "Platinum"
+	self.rank.platinum.color = Color(255, 0, 213, 255) / 255
+	self.rank.platinum.points = 500
+end
+
+function ClassCustomAchievement:init_achievement_rank_levels()
+	self.rank_level = {}
+	self.rank_level.experience = 20
+	self.level_calculation = self.total_points / self.rank_level.experience
+	return self.level_calculation
+end
+
+function ClassCustomAchievement:get_rank_level()
+	return math.floor(self:init_achievement_rank_levels()) + 1
 end
 
 function ClassCustomAchievement:IncreaseCounter(id_achievement, amount)

@@ -3,19 +3,12 @@
 	"description" : "Base mod needed to get custom achievements to work.",
 	"author" : "Nepgearsy",
 	"contact" : "id/Nepgearsy",
-	"version" : "1.2.0",
+	"version" : "1.2.1",
     "priority" : 1000,
     "updates" : [
         {
-            "revision" : 14,
+            "revision" : 15,
             "identifier" : "CSTMACH"
-        },
-        {
-            "revision" : 2,
-            "identifier" : "CSTMACH_Assets",
-            "install_dir" : "assets/mod_overrides/",
-            "install_folder" : "Custom achievements assets",
-            "display_name" : "Custom achievements assets"
         }
     ],
     "pre_hooks" : [

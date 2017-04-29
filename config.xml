@@ -9,4 +9,6 @@
     </Hooks>
     <Localization directory="Localization" default="english.txt">
     </Localization>
+
+    <AddFiles file="add.xml"/>
 </mod>

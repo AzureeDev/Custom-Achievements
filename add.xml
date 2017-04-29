@@ -1,0 +1,8 @@
+<table directory="Assets">
+	<texture path="guis/textures/mods/CustomAchievement/default"/>
+	<texture path="guis/textures/mods/CustomAchievement/hidden"/>
+	<texture path="guis/textures/mods/CustomAchievement/trophy_icon_bronze"/>
+	<texture path="guis/textures/mods/CustomAchievement/trophy_icon_silver"/>
+	<texture path="guis/textures/mods/CustomAchievement/trophy_icon_gold"/>
+	<texture path="guis/textures/mods/CustomAchievement/trophy_icon_platinum"/>
+</table>
