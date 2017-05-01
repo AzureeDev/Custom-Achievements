@@ -184,7 +184,7 @@ function CustomAchievementsPage:set_achievement_info(trophy, update_size)
 				end
 
 				if str_reward_amount > 10 then
-					str_reward_amount = 10
+					str_reward_amount = 0
 				end
 
 				reward_text:set_text(self:format_int(str_reward_amount) .. str_reward_type)
@@ -197,13 +197,21 @@ function CustomAchievementsPage:set_achievement_info(trophy, update_size)
 				end
 
 				if str_reward_amount > 1000000 then
-					str_reward_amount = 1000000
+					str_reward_amount = 0
 				end
 
 				reward_text:set_text(self:format_int(str_reward_amount) .. str_reward_type)
 			elseif data.reward_type == "offshore" then
 				local str_reward_type = "$ Offshore"
 				local str_reward_amount = data.reward_amount
+
+				if str_reward_amount < 0 then
+					str_reward_amount = 0
+				end
+
+				if str_reward_amount > 2000000 then
+					str_reward_amount = 0
+				end
 
 				reward_text:set_text(self:format_int(str_reward_amount) .. str_reward_type)
 
@@ -216,7 +224,7 @@ function CustomAchievementsPage:set_achievement_info(trophy, update_size)
 				end
 
 				if str_reward_amount > 500000 then
-					str_reward_amount = 500000
+					str_reward_amount = 0
 				end
 
 				local current_level = managers.experience:current_level()

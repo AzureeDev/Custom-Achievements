@@ -53,11 +53,28 @@ function ClassCustomAchievement:Unlock(id_achievement) -- Once it's done, you un
 
 			if managers.hud then
 				managers.hud:post_event("Achievement_challenge")
+				
+				hudac = managers.hud._hud_assault_corner
+				
+				if hudac then
+					if self.id_data.data["rank"] then
+						hudac.trophy_rank_image:set_image("guis/textures/mods/CustomAchievement/trophy_icon_" .. self.id_data.data["rank"])
+					else
+						hudac.trophy_rank_image:set_visible(false)
+					end
+				    hudac.achievement_unlocked_image:set_image("guis/textures/mods/CustomAchievement/" .. self.id_data.data["texture"])
+				    hudac.trophy_rank_image:set_right(hudac.achievement_unlocked_panel:right() - 9)
+				    hudac.achievement_unlocked_text:set_text("Achievement Unlocked!\n\n" .. managers.localization:text(self.id_data.data["name"]))
+				    hudac.achievement_unlocked_desc:set_text(managers.localization:text(self.id_data.data["objective"]))
+				    hudac.achievement_unlocked_desc:set_top(hudac.achievement_unlocked_image:bottom() + 4)
+				    hudac.achievement_unlocked_desc:set_left(hudac.achievement_unlocked_image:right() + 5)
+				    hudac.achievement_unlocked_panel:set_visible(true)
+					
+				    DelayedCalls:Add( "DelayedVisibleToFalse", 10, function()
+				    	hudac.achievement_unlocked_panel:set_visible(false)
+					end)
+				end
 			end
-			
-			managers.chat:achievement_unlocked_message(ChatManager.GAME, managers.localization:text("achievement_unlocked_chat"))
-			managers.chat:achievement_unlocked_message(ChatManager.GAME, managers.localization:text(achievement_name))
-			managers.chat:achievement_unlocked_message(ChatManager.GAME, managers.localization:text(achievement_desc))
 
 			self.id_data.data["displayed"] = true
 		end
@@ -94,7 +111,7 @@ function ClassCustomAchievement:Reward()
 				if json_reward_type == "cc" then
 
 					if json_reward_amount > 10 then
-						json_reward_amount = 10
+						json_reward_amount = 0
 					end
 
 					local current = Application:digest_value(managers.custom_safehouse._global.total)
@@ -103,7 +120,7 @@ function ClassCustomAchievement:Reward()
 
 				elseif json_reward_type == "money" then
 					if json_reward_amount > 1000000 then
-						json_reward_amount = 1000000
+						json_reward_amount = 0
 					end
 
 					managers.money:_add_to_total(json_reward_amount, {no_offshore = true})
@@ -111,14 +128,14 @@ function ClassCustomAchievement:Reward()
 				elseif json_reward_type == "offshore" then
 					
 					if json_reward_amount > 2000000 then
-						json_reward_amount = 2000000
+						json_reward_amount = 0
 					end
 
 					managers.money:add_to_offshore(json_reward_amount)
 
 				elseif json_reward_type == "experience" then
 					if json_reward_amount > 500000 then
-						json_reward_amount = 500000
+						json_reward_amount = 0
 					end
 
 					local current_level = managers.experience:current_level()
@@ -178,6 +195,34 @@ end
 
 function ClassCustomAchievement:get_rank_level()
 	return math.floor(self:init_achievement_rank_levels()) + 1
+end
+
+function ClassCustomAchievement:get_achievement_rank_string(id_achievement)
+	self:Load(id_achievement)
+
+	if self.id_data.data["rank"] then
+		return self.id_data.data["rank"]
+	end
+
+	return "none"
+end
+
+function ClassCustomAchievement:get_achievement_rank_icon(id_achievement)
+	self:Load(id_achievement)
+
+	if self.id_data.data["rank"] then
+		if self.id_data.data["rank"] == "bronze" then
+			return "guis/textures/mods/CustomAchievement/trophy_icon_bronze"
+		elseif self.id_data.data["rank"] == "silver" then
+			return "guis/textures/mods/CustomAchievement/trophy_icon_silver"
+		elseif self.id_data.data["rank"] == "gold" then
+			return "guis/textures/mods/CustomAchievement/trophy_icon_gold"
+		elseif self.id_data.data["rank"] == "platinum" then
+			return "guis/textures/mods/CustomAchievement/trophy_icon_platinum"
+		else
+			return "guis/textures/mods/CustomAchievement/trophy_icon_silver"
+		end
+	end
 end
 
 function ClassCustomAchievement:IncreaseCounter(id_achievement, amount)

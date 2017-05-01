@@ -6,6 +6,7 @@
         <hook file="chatmanager.lua" source_file="lib/managers/chatmanager"/>
         <hook file="menumanager.lua" source_file="lib/managers/menumanager"/>
         <hook file="customsafehousegui.lua" source_file="lib/managers/menu/customsafehousegui"/>
+        <hook file="hudassaultcorner.lua" source_file="lib/managers/hud/hudassaultcorner"/>
     </Hooks>
     <Localization directory="Localization" default="english.txt">
     </Localization>
